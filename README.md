@@ -11,8 +11,9 @@ Requirements:
 
 Websockets
 The scope of this document doesn't include an in-depth discussion of Websockets. To satisfy your thirst for details, please have a look at RFC6455[1]. Wikipedia also provides a nice high-level overview[2]. 
+
 The quick'n'dirty version: Websockets provide a full-duplex channel over a TCP connection. This is mainly focused on, but not limited to, facilitating a persistent two-way communication channel between a web client and a webserver. 
-This has a number of implications, both on the possiblities in application design as well as resource considerations on the server side. We'll discuss this in a bit more detail after talking about the application. 
+This has a number of implications, both on the possiblities in application design as well as resource considerations on the server side. 
 
 
 ## The application
