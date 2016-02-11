@@ -1,7 +1,7 @@
-# websockets-tutorial
-Cache websockets tutorial
+# Cache websockets tutorial
 
 
+## Intro
 The goal of this post is to discuss working with Websockets in a Caché environment. 
 We are going to have a quick discussion of what websockets are and then talk through an example chat application implemented on top of 
 
@@ -15,7 +15,7 @@ The quick'n'dirty version: Websockets provide a full-duplex channel over a TCP c
 This has a number of implications, both on the possiblities in application design as well as resource considerations on the server side. We'll discuss this in a bit more detail after talking about the application. 
 
 
-The application
+## The application
 
 One of the standard examples, kind of the 'hello world' of Websockets is a chat application. You'll find numerous examples of similar implementations for many languages. 
 
@@ -30,39 +30,44 @@ First we'll define a small set of goals for our implementetation. Some of these 
 A production like chat application will have many more requirements, but the goal here is to demonstrate basic Websocket programming and not to replace IRC ;)
 
 
-You'll find the code we are about to discuss in the attachement to this page. It contains:
+You'll find the code we are about to discuss in repository. It contains:
 
-ChatTest.csp  -- The CSP page actually showing the chat
-Chat.Server.cls -- Server side class managing the Websocket connection
+* ChatTest.csp  -- The CSP page actually showing the chat
+* Chat.Server.cls -- Server side class managing the Websocket connection
 
 
 To be able to manage the chatroom and the communication between the client and the server side, we are defining a couple of message formats we are going to use. Please not, that this is purely up to you. Websockets do not prescribe any format of the data being sent over it. 
 
 
 A chat message:
+```
   {
          "Type":"Chat",
          "Message":"<msg>"
   }
+```
 
 
 A status update, informing the clieng of its websocketID
+```
   {
          "Type":"Status",
          "WSID":"<websocketid>"
   }
+```
 
 The list of currently connected users (usually updated when a new user connects/disconnects):
-
+```
   {
     "Type":"userlist",
     "Users": [ {"Name":"<username>"},
                             ....
                  ]
   }
+```
 
 
-The Client side
+## The Client side
 
 We are going to render the client side with a simple single html5 page. This is basic html with a little bit of css to make it look nice. For details, look at the implementation of ChatTest.csp itself. For simplicity we're pulling in jquery, which will allow us to make dynamic updates to the page a little easier. 
 
@@ -151,7 +156,7 @@ The one function left is
 
 Here we handle setting the nickname via "/nick newnickname" and sending a new chatmessage to the server. For that we b64 encode the textmessage and wrap it into an object, which we'll send json encoded to the server. We're doing the b64 encoding to avoid having to deal with special characters. 
 
-Server side. 
+## Server side. 
 
 The server side code is a simple class extending %CSP.WebSocket. We'll discuss the 5 functions in our implementation now.
 
@@ -224,6 +229,7 @@ ProcessMessage is getting a message id passed in. It will parse the received jso
 
 The BroadCast method demonstrates how to send a chatmessage to all connected clients. It's not being used on normal operations. 
 
+## Wrapup
 Exercise left for the user: 
 
  Implement the tracking of usernames on the server side and send a userlist message at the appropriate times. 
