@@ -243,3 +243,7 @@ Caveats, or why this isn't production code.
 
 [1]https://tools.ietf.org/html/rfc6455
 [2]https://en.wikipedia.org/wiki/WebSocket
+
+## Feedback
+
+Please feel free to provide feedback in the comments below. I'll also try and answer any questions!
