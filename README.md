@@ -1,4 +1,4 @@
-# Cache websockets tutorial
+# Caché websockets tutorial
 
 
 ## Intro
@@ -178,7 +178,7 @@ Method Server() As %Status
                                   //$$$DEBUG("no data")
               }
               If ($$$GETERRORCODE(sc)=$$$CSPWebSocketClosed){
-                      k ^cacheTemp.ChatWebSockets(..WebSocketID)
+                      k ^CacheTemp.ChatWebSockets(..WebSocketID)
                       d ..EndServer()        
                       Quit  // Client closed WebSocket
               }
