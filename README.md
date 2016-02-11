@@ -170,25 +170,25 @@ We are also recording the new socket ID and association with a chatroom into glo
 Method Server() As %Status
 {
          
-        J ..StatusUpdate(..WebSocketID)
-        f {                
-        s data=..Read(.size,.sc,1) 
-         If ($$$ISERR(sc)){
+        job ..StatusUpdate(..WebSocketID)
+        for {                
+        set data=..Read(.size,.sc,1) 
+         if ($$$ISERR(sc)){
             if ($$$GETERRORCODE(sc)=$$$CSPWebSocketTimeout) {
                                   //$$$DEBUG("no data")
               }
               If ($$$GETERRORCODE(sc)=$$$CSPWebSocketClosed){
-                      k ^CacheTemp.ChatWebSockets(..WebSocketID)
-                      d ..EndServer()        
+                      kill ^CacheTemp.ChatWebSockets(..WebSocketID)
+                      do ..EndServer()        
                       Quit  // Client closed WebSocket
               }
          } else {
-                 s mid=$I(^CacheTemp.Chat.Message)
-                 s sc= ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(data,"%Object",.msg)
-                 s msg.Room=$G(^CacheTemp.Chat.Room(..WebSocketID))
-                 s msg.WSID=..WebSocketID //meta data for the message
-                 s ^CacheTemp.Chat.Message(mid)=msg.$toJSON()
-                 J ..ProcessMessage(mid)
+                 set mid=$I(^CacheTemp.Chat.Message)
+                 set sc= ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(data,"%Object",.msg)
+                 set msg.Room=$G(^CacheTemp.Chat.Room(..WebSocketID))
+                 set msg.WSID=..WebSocketID //meta data for the message
+                 set ^CacheTemp.Chat.Message(mid)=msg.$toJSON()
+                 job ..ProcessMessage(mid)
          }
         }
   
@@ -204,23 +204,23 @@ The Server() as %Status method is being called for a WebSocket afterwards. This 
 ClassMethod ProcessMessage(mid As %String)
 {
         
-        s sc= ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject($G(^CacheTemp.Chat.Message(mid)),"%Object",.msg)
+        set sc= ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject($G(^CacheTemp.Chat.Message(mid)),"%Object",.msg)
         if (msg.Type="NickChange") {
-                s ^CacheTemp.Chat.Nick(msg.WSID)=msg.Author
-                J ..UserList(msg.Room)
+                set ^CacheTemp.Chat.Nick(msg.WSID)=msg.Author
+                job ..UserList(msg.Room)
         } elseif msg.Type="Chat" {
-                s msg.Sent=$ZDT($H,3)
-                s c=$O(^CacheTemp.Chat.WebSockets(""))
+                set msg.Sent=$ZDT($H,3)
+                set c=$O(^CacheTemp.Chat.WebSockets(""))
                 while (c'="") {
                         if ($G(^CacheTemp.Chat.Room(c))=msg.Room){
-                                s ws=..%New()
-                                s sc=ws.OpenServer(c)
+                                set ws=..%New()
+                                set sc=ws.OpenServer(c)
                                 if $$$ISERR(sc){
-                                        s ^CacheTemp.Chat.Error($I(^CacheTemp.Chat.Error),"open failed for",c)=sc 
+                                        set ^CacheTemp.Chat.Error($I(^CacheTemp.Chat.Error),"open failed for",c)=sc 
                                 }
-                                s sc=ws.Write(msg.$toJSON())
+                                set sc=ws.Write(msg.$toJSON())
                         }
-                s c=$O(^CacheTemp.Chat.WebSockets(c))                
+                set c=$O(^CacheTemp.Chat.WebSockets(c))                
                 }
         }
 }
