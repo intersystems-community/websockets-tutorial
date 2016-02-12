@@ -20,12 +20,13 @@ s room=$G(%request.Data("room",1),"default")
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.3.min.js"><\/script>')</script>
         
         <script Language="Cache" runat="SERVER">
-       	w "<script language=""javascript"">"
-       	w "var ROOM='"_$G(room)_"';"
-       	w "<"_"/script>"      	
+        w "<script language=""javascript"">"
+        w "var ROOM='"_$G(room)_"';"
+        w "<"_"/script>"        
        </script>
        <script language="javascript">
         var ws;
+        var nickname="unknown";
 
       if ((typeof(WebSocket) == 'undefined') &&
           (typeof(MozWebSocket) != 'undefined')) {
@@ -33,17 +34,18 @@ s room=$G(%request.Data("room",1),"default")
       }
 
  function init() {
-	$(".textmsg").each(function(d){$(this).text(btoa($(this).text()));})
-	$("#chatdiv").animate({ scrollTop: $('#chatdiv').prop("scrollHeight")}, 1000);
-	$("#inputline").focus()
-	 $('#inputline').keypress(function (e) {
-  		if (e.which == 13) {
-    		send();
-  		}
-		});
-	 
+  
+  $(".textmsg").each(function(d){$(this).text(btoa($(this).text()));})
+  $("#chatdiv").animate({ scrollTop: $('#chatdiv').prop("scrollHeight")}, 1000);
+  $("#inputline").focus()
+   $('#inputline').keypress(function (e) {
+      if (e.which == 13) {
+        send();
+      }
+    });
+   
   ws = new WebSocket(((window.location.protocol == "https:") ? "wss:" : "ws:") + "//" + window.location.host + "/csp/user/Chat.Server.cls"+"?room="+ROOM);
-  	
+    
   ws.onopen = function(event) {
      document.getElementById("headline").innerHTML = "CHAT - connected";
   };
@@ -51,17 +53,17 @@ s room=$G(%request.Data("room",1),"default")
 
   
   ws.onmessage = function(event) {
-	  	var d=JSON.parse(event.data);
-		//var msg=d.Message;
-		//alert(event);
-		if (d.Type=="Chat") {
-			$("#chat").append(wrapmessage(d));
-			$("#chatdiv").animate({ scrollTop: $('#chatdiv').prop("scrollHeight")}, 1000);
-		} else if(d.Type=="userlist") {
-			$("#userlist").html(wrapuser(data.Users));
-		} else if(d.Type=="Status"){
-			document.getElementById("headline").innerHTML = "CHAT - connected - "+d.WSID;
-		}
+      var d=JSON.parse(event.data);
+    //var msg=d.Message;
+    //alert(event);
+    if (d.Type=="Chat") {
+      $("#chat").append(wrapmessage(d));
+      $("#chatdiv").animate({ scrollTop: $('#chatdiv').prop("scrollHeight")}, 1000);
+    } else if(d.Type=="userlist") {
+      $("#userlist").html(wrapuser(data.Users));
+    } else if(d.Type=="Status"){
+      document.getElementById("headline").innerHTML = "CHAT - connected - "+d.WSID;
+    }
   };
   ws.onerror = function(event) { alert("Received error"); };
   
@@ -73,50 +75,50 @@ s room=$G(%request.Data("room",1),"default")
 
   function send() {
 
-	  var line=$("#inputline").val();
-	  if (line.substr(0,5)=="/nick"){
-	  	nickname=line.split(" ")[1];
-	  	if (nickname==""){
-	  		nickname="default";
-	  	}
-	  } else {
-	  	var msg=btoa(line);
-	  	var data={};
-	  	data.Message=msg;
-	  	data.Author=nickname;
-     	if (ws && msg!="") {
-       		ws.send(JSON.stringify(data));
-     	}
-	  }
+    var line=$("#inputline").val();
+    if (line.substr(0,5)=="/nick"){
+      nickname=line.split(" ")[1];
+      if (nickname==""){
+        nickname="default";
+      }
+    } else {
+      var msg=btoa(line);
+      var data={};
+      data.Message=msg;
+      data.Author=nickname;
+      if (ws && msg!="") {
+          ws.send(JSON.stringify(data));
+      }
+    }
      $("#inputline").val("");
 
   }
   
   function wrapmessage(data) {
- 	var html=[];
-	html.push('<li class="media">');
-	html.push('<div class="media-body">');
-	html.push('<div class="media">');
-	html.push('<p>'+data.Author+'</p>');
-	html.push('<div class="media-body" >');
-	html.push(atob(data.Message));
-	html.push('<br />');
-	html.push('<small class="text-muted">');
-	html.push(data.Sent);
-	html.push('</small><hr /></div></div></div></li>');
-	return html.join("");
+  var html=[];
+  html.push('<li class="media">');
+  html.push('<div class="media-body">');
+  html.push('<div class="media">');
+  html.push('<p>'+data.Author+'</p>');
+  html.push('<div class="media-body" >');
+  html.push(atob(data.Message));
+  html.push('<br />');
+  html.push('<small class="text-muted">');
+  html.push(data.Sent);
+  html.push('</small><hr /></div></div></div></li>');
+  return html.join("");
   }
   function wrapuser(data){
-  	var html=[];
-  	for (i=1;i<data.length;i++){
-		html.push('<li class="media">');
-		html.push('<div class="media-body">');
-		html.push('<p>');
-		html.push(data.Name);
-		html.push('</p>');
-		html.push('</div></li>');
-  	}
-	return html.join("");
+    var html=[];
+    for (i=1;i<data.length;i++){
+    html.push('<li class="media">');
+    html.push('<div class="media-body">');
+    html.push('<p>');
+    html.push(data.Name);
+    html.push('</p>');
+    html.push('</div></li>');
+    }
+  return html.join("");
   }
        </script>
        
@@ -162,8 +164,8 @@ textarea {
 }
 
 .panel-body {
-	height:600px;
-	overflow: auto;
+  height:600px;
+  overflow: auto;
 }
   </style>
       </head>
@@ -178,22 +180,22 @@ textarea {
                 RECENT CHAT HISTORY
             </div>
             <div id="chatdiv" class="panel-body">
-				<ul id="chat" class="media-list">
-				<script language="Cache" runat="Server">
-					s sql=1
-					s sql(1)="select Author,TimeStamp,Message from Chat.Message where Room->RoomNumber=? order by TimeStamp"
-					
-					s rset=##class(%SQL.Statement).%ExecDirect(,.sql,room)
-					while (rset.%Next()){
-						w "<li class=""media""><div class=""media-body""><div class=""media""><p>"_rset.%Get("Author")
-						w "</p><div class=""media-body"">"
-						w "<div class=""textmsg"">"
-						w rset.%Get("Message")
-						w "</div>"
-						w "<br /><small class=""text-muted"">"_rset.%Get("TimeStamp")_"</small><hr /></div></div></div></li>"
-					}
-					d rset.%Close()
-				</script>
+        <ul id="chat" class="media-list">
+        <script language="Cache" runat="Server">
+          s sql=1
+          s sql(1)="select Author,TimeStamp,Message from Chat.Message where Room->RoomNumber=? order by TimeStamp"
+          
+          s rset=##class(%SQL.Statement).%ExecDirect(,.sql,room)
+          while (rset.%Next()){
+            w "<li class=""media""><div class=""media-body""><div class=""media""><p>"_rset.%Get("Author")
+            w "</p><div class=""media-body"">"
+            w "<div class=""textmsg"">"
+            w rset.%Get("Message")
+            w "</div>"
+            w "<br /><small class=""text-muted"">"_rset.%Get("TimeStamp")_"</small><hr /></div></div></div></li>"
+          }
+          d rset.%Close()
+        </script>
                 </ul>
             </div>
             <div class="panel-footer">

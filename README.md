@@ -161,7 +161,22 @@ Here we handle setting the nickname via "/nick newnickname" and sending a new ch
 
 The server side code is a simple class extending %CSP.WebSocket. We'll discuss the 5 functions in our implementation now.
 
-OnPreServer() as %Status
+```
+Method OnPreServer() As %Status
+{
+  set ..SharedConnection=1
+  set room=$GET(%request.Data("room",1),"default")
+  set:room="" room="default"
+  if (..WebSocketID'=""){
+    set ^CacheTemp.Chat.WebSockets(..WebSocketID)=""
+    set ^CacheTemp.Chat.Room(..WebSocketID)=room
+  } else {
+    set ^CacheTemp.Chat.Error($INCREMENT(^CacheTemp.Chat.Error),"no websocketid defined")=$HOROLOG 
+  }
+  
+  Quit $$$OK
+}
+```
 
 is the hook that is getting called for a new WebSocket connection. Here we set ..SharedConnection=1 to indicate that we want to be able to write to this socket from multiple processes. 
 We are also recording the new socket ID and association with a chatroom into globals. For this example we're using ^CacheTemp.Chat.* in the hopes to not conflict with anything. Obviously these can be replace by other mechanisms. 
@@ -203,26 +218,21 @@ The Server() as %Status method is being called for a WebSocket afterwards. This 
 /// clients for this room. 
 ClassMethod ProcessMessage(mid As %String)
 {
-        
-        set sc= ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject($G(^CacheTemp.Chat.Message(mid)),"%Object",.msg)
-        if (msg.Type="NickChange") {
-                set ^CacheTemp.Chat.Nick(msg.WSID)=msg.Author
-                job ..UserList(msg.Room)
-        } elseif msg.Type="Chat" {
-                set msg.Sent=$ZDT($H,3)
-                set c=$O(^CacheTemp.Chat.WebSockets(""))
-                while (c'="") {
-                        if ($G(^CacheTemp.Chat.Room(c))=msg.Room){
-                                set ws=..%New()
-                                set sc=ws.OpenServer(c)
-                                if $$$ISERR(sc){
-                                        set ^CacheTemp.Chat.Error($I(^CacheTemp.Chat.Error),"open failed for",c)=sc 
-                                }
-                                set sc=ws.Write(msg.$toJSON())
-                        }
-                set c=$O(^CacheTemp.Chat.WebSockets(c))                
-                }
-        }
+  set msg = ##class(%Object).$fromJSON($GET(^CacheTemp.Chat.Message(mid)))
+  set msg.Type="Chat"
+  
+  set msg.Sent=$ZDATETIME($HOROLOG,3)
+  set c=$ORDER(^CacheTemp.Chat.WebSockets(""))
+  while (c'="") {
+    set ws=..%New()
+    set sc=ws.OpenServer(c)
+    if $$$ISERR(sc){
+      set ^CacheTemp.Chat.Error($INCREMENT(^CacheTemp.Chat.Error),"open failed for",c)=sc 
+    }
+    set sc=ws.Write(msg.$toJSON())
+    set c=$ORDER(^CacheTemp.Chat.WebSockets(c))
+    
+  }
 }
 ```
 

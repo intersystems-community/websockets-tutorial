@@ -28,7 +28,7 @@ Method OnPreServer() As %Status
 Method Server() As %Status
 {
  	
-	job ..StatusUpdate(..WebSocketID)
+	JOB ..StatusUpdate(..WebSocketID)
 	for {		
 	set data=..Read(.size,.sc,1) 
 	 If ($$$ISERR(sc)){
@@ -42,7 +42,7 @@ Method Server() As %Status
 	 } else {
 		 set mid=$INCREMENT(^CacheTemp.Chat.Message)
 		 set ^CacheTemp.Chat.Message(mid)=data
-	 	job ..ProcessMessage(mid)
+	 	JOB ..ProcessMessage(mid)
 	 }
 	}
   
@@ -62,8 +62,7 @@ ClassMethod StatusUpdate(wsid As %String)
 
 ClassMethod ProcessMessage(mid As %String)
 {
-	
-	set sc= ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject($GET(^CacheTemp.Chat.Message(mid)),"%Object",.msg)
+	set msg = ##class(%Object).$fromJSON($GET(^CacheTemp.Chat.Message(mid)))
 	set msg.Type="Chat"
 	
 	set msg.Sent=$ZDATETIME($HOROLOG,3)
