@@ -72,6 +72,8 @@ The list of currently connected users (usually updated when a new user connects/
 
 We are going to render the client side with a simple single html5 page. This is basic html with a little bit of css to make it look nice. For details, look at the implementation of ChatTest.csp itself. For simplicity we're pulling in jquery, which will allow us to make dynamic updates to the page a little easier. 
 
+![ScreenShot](/screenshot.png)
+
 Down the road we are interested only in a couple of dom elements, identified by:
    * #chat -- the ul holding the chatmessages
    * #chatdiv -- the div holding #chat (used for automatic scrolling to the last message)
