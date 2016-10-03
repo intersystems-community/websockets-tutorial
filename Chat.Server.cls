@@ -36,7 +36,8 @@ Method Server() As %Status
 	  			//$$$DEBUG("no data")
       	}
       	If ($$$GETERRORCODE(sc)=$$$CSPWebSocketClosed){
-	      	kill ^cacheTemp.ChatWebSockets(..WebSocketID)	
+	      	kill ^CacheTemp.Chat.WebSockets(..WebSocketID)	
+	      	kill ^CacheTemp.Chat.Room(..WebSocketID)
 	      	Quit  // Client closed WebSocket
       	}
 	 } else {
